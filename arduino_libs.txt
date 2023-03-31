@@ -1,0 +1,11 @@
+Libraries:
+- ArduinoLowPower -> sommeil low power, mode idle et sleep
+
+- WIFININA -> Module WiFi du MKR 1010
+- ArduinoMqttClient -> communication MQTT
+- RTCZero -> utilisation do RTC pour timestamps
+- ArduinoJson -> paquetage de donnees en JSON pour l'envoi
+
+- XH711 Arduino Library -> communication avec l'amplificateur/load-cell
+
+- Adafruit BNO08x -> communication avec BNO085 pour plus de data
