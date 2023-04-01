@@ -10,6 +10,7 @@ const unsigned long MAX_TIME_BETWEEN_RTC_SYNC = 3600UL;
 
 void setup_time();
 
+unsigned long sendNTPpacket(IPAddress& address);
 unsigned long get_timestamp_now();
 
 #endif
