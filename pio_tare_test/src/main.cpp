@@ -9,12 +9,13 @@
 
 unsigned long startMillis;
 const char sensor_name[] = "demo_load_cell";
+Adafruit_BNO08x bno_imu;
 
 void setup() {
     setup_data_handler();
     setup_time();
     setup_loadcell();
-    setup_imu();
+    setup_imu(&bno_imu);
 }
 
 String load_container;

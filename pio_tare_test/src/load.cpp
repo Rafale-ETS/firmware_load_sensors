@@ -12,7 +12,7 @@ unsigned long start_time = 0;
 
 void serialFlush(){
   while(Serial.available() > 0) {
-    char t = Serial.read();
+    Serial.read();
   }
 }
 

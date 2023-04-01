@@ -75,7 +75,7 @@ void setup_imu(Adafruit_BNO08x* bno08x){
         Serial.println(bno08x->prodIds.entry[n].swBuildNumber);
     }
 
-    setReports();
+    setReports(bno08x);
 
     Serial.println("Reading events");
     delay(100);
@@ -86,12 +86,12 @@ void setup_imu(Adafruit_BNO08x* bno08x){
 sh2_SensorId_t read_imu_no_block(Adafruit_BNO08x* bno08x, ImuData* container){
     if (bno08x->wasReset()) {
         Serial.print("sensor was reset ");
-        setReports();
+        setReports(bno08x);
     }
 
     sh2_SensorValue_t sensorValue;
     if (!bno08x->getSensorEvent(&sensorValue)) {
-        return NULL;
+        return 0;
     }
 
     switch (sensorValue.sensorId) {

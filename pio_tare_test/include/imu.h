@@ -14,8 +14,8 @@ typedef struct ImuDatas{
     sh2_RotationVectorWAcc_t rotation;
 } ImuData;
 
-void setup_imu();
-void setReports();
+void setReports(Adafruit_BNO08x* bno08x);
+void setup_imu(Adafruit_BNO08x* bno08x);
 
 sh2_SensorId_t read_imu_no_block(Adafruit_BNO08x* bno08x, ImuData* container);
 
