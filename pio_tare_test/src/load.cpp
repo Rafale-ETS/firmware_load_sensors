@@ -48,6 +48,7 @@ void tare() {
       float reading = scale.get_units(10);
       calib_param = reading/(float)calib_weight;
       scale.set_scale(calib_param);
+      calib_storage.write(calib_param);
 
       Serial.print("Calibration done with ");
       Serial.print(calib_weight);
@@ -66,19 +67,19 @@ void tare() {
 }
 
 void setup_loadcell() {
-  Serial.begin(115200);
-  while (!Serial)
-    delay(10); // will pause Zero, Leonardo, etc until serial console opens
-
-  Serial.println("Test program starting!");
+  Serial.println("Load cell program starting!");
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
-  delay(100);
-  tare();
+  while(!scale.is_ready()){
+    Serial.print(".");
+    delay(1000);
+  }
+  float calib;
+  calib = calib_storage.read();
+  if(calib == 0) calib = 1;
+  Serial.print("\nset_scale("); Serial.print(calib); Serial.println(")");
+  scale.set_scale(calib);
+  //tare();
 
-  Serial.println("Ready to test. Press enter when setup to start.");
-  while(Serial.available() == 0);
-  serialFlush();
-  start_time = millis();
   Serial.println("time,val,kg,N,temp");
 }
 

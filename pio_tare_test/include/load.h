@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <HX711.h>
 #include <ArduinoLowPower.h>
+#include <FlashStorage.h>
 
 /*
 Load cell specs:
