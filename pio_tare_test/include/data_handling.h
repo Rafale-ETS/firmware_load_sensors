@@ -9,7 +9,7 @@
 #include "secrets.h"
 #include "imu.h"
 #include "load.h"
-#include "battery.h"
+#include "status.h"
 
 extern WiFiClient wifiClient;
 extern MqttClient mqttClient;
@@ -18,7 +18,7 @@ const char broker_ip[]  = "192.168.105.1";
 const int  port         = 1883;
 const char topic_load[] = "strength";
 const char topic_imu[]  = "orientation";
-const char topic_battery[] = "battery";
+const char topic_status[] = "status";
 
 void setup_data_handler();
 
@@ -35,9 +35,9 @@ void format_data_load(String* container,
                       const char* sensor_name,
                       LoadValue* load_data);
 
-void format_data_battery(String* container,
+void format_data_status(String* container,
                       unsigned long timestamp,
                       const char* sensor_name,
-                      BatteryValue* battery_data);
+                      StatusValue* status_data);
 
 #endif

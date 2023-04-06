@@ -99,22 +99,21 @@ void format_data_load(String* container,
     *container = json;
 }
 
-void format_data_battery(String* container,
+void format_data_status(String* container,
                       unsigned long timestamp,
                       const char* sensor_name,
-                      BatteryValue* battery_data)
+                      StatusValue* status_data)
 {
     StaticJsonDocument<192> doc;
 
     doc["time"] = timestamp;
-    doc["type"] = "battery";
+    doc["type"] = "status";
     doc["name"] = String(sensor_name);
 
     JsonObject data = doc.createNestedObject("data");
-    data["raw_ADC"] = battery_data->rawADC;
-    data["volt_ADC"] = battery_data->voltADC;
-    data["volt_bat"] = battery_data->volt_bat;
-    data["charge_level"] = battery_data->chargeLevel;
+    // TODO : Add status
+    data["battery_voltage"] = status_data->batteryVoltage;
+    data["charge_level"] = status_data->chargeLevel;
 
     String json;
     serializeJson(doc, json);

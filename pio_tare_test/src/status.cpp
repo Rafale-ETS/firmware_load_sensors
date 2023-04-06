@@ -5,7 +5,7 @@
 // Include the library for the BQ24195 IC
 #include <BQ24195.h>
 #include <Arduino.h>
-#include "battery.h"
+#include "status.h"
 
 float rawADC; // unprocessed ADC value
 float voltADC; // ADC converted into voltage
@@ -15,7 +15,7 @@ int max_Source_voltage; // upper source voltage for the battery
 
 unsigned long start_time = 0;
 
-void setup_battery() {
+void setup_status() {
   Serial.begin(9600);               // start Serial port with a baudrate of 9600bps
   
   analogReference(AR_DEFAULT);      // the upper value of ADC is set to 3.3V
@@ -38,19 +38,21 @@ void setup_battery() {
   max_Source_voltage = (3.3 * (R1 + R2))/R2;
 }
 
-void read_battery_no_block(BatteryValue* container) {
-    container->rawADC = analogRead(ADC_BATTERY); // the value obtained directly at the PB09 input pin
-    container->voltADC = rawADC*(3.3/4095.0); // convert ADC value to the voltage read at the pin
-    container->voltBat = voltADC*(max_Source_voltage/3.3); // we cannot use map since it requires int inputs/outputs
-    container->chargeLevel = (voltBat - batteryEmptyVoltage)*(100.0)/(batteryFullVoltage - batteryEmptyVoltage); 
+void read_status_no_block(BatteryValue* container) {
+    rawADC = analogRead(ADC_BATTERY); // the value obtained directly at the PB09 input pin
+    voltADC = rawADC*(3.3/4095.0); // convert ADC value to the voltage read at the pin
+    voltBat = voltADC*(max_Source_voltage/3.3); // we cannot use map since it requires int inputs/outputs
+    chargeLevel = (voltBat - BATTERY_EMPTY_VOLTAGE)*(100.0)/(BATTERY_FULL_VOLTAGE - BATTERY_EMPTY_VOLTAGE); 
+    container->batteryVoltage = voltBat;
+    container->chargeLevel = chargeLevel;
 }
 
 // Debug function
-void loop_battery() {
+void loop_status() {
     unsigned long time = millis() - start_time;
 
-    BatteryValue val_con;
-    read_battery_no_block(&val_con);
+    StatusValue val_con;
+    read_status_no_block(&val_con);
 
     Serial.print(time);
     Serial.print("The ADC on PB09 reads a value of ");
@@ -60,7 +62,7 @@ void loop_battery() {
     Serial.print("V. This means the battery voltage is ");
     Serial.print(voltBat);
     Serial.print("V. Which is equivalent to a charge level of ");
-    Serial.print(new_batt);
+    Serial.print(chargeLevel);
     Serial.println("%.");
     delay(2000);
 }
