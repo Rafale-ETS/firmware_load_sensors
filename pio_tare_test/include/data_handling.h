@@ -6,6 +6,7 @@
 #include <ArduinoMqttClient.h>
 #include <Adafruit_BNO08x.h>
 #include <ArduinoJson.h>
+#include "load.h"
 #include "secrets.h"
 #include "imu.h"
 #include "generic_const.h"
@@ -33,5 +34,9 @@ void format_data_load(String* container,
                       unsigned long timestamp,
                       const char* sensor_name,
                       LoadValue* load_data);
+
+//Load cell
+void onMqttMessage(int messageSize);
+bool is_tare_requested();
 
 #endif

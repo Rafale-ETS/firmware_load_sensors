@@ -5,6 +5,7 @@
 #include <HX711.h>
 #include <ArduinoLowPower.h>
 #include <FlashStorage.h>
+#include <Adafruit_BNO08x.h>
 
 /*
 Load cell specs:
@@ -28,7 +29,7 @@ Overload:               1.2x (120 %FS)[ultimate: 150 %FS]
 const int LOADCELL_DOUT_PIN = 5;
 const int LOADCELL_SCK_PIN = 4;
 
-const int AVG_BUF_LEN = 10;
+const int AVG_BUF_LEN = 5;
 typedef struct LoadValues{
     float avg_buf[AVG_BUF_LEN];
     float raw;
@@ -38,6 +39,9 @@ typedef struct LoadValues{
 
 const float kg_to_newts = 9.80665; // = 1 kgf
 //calibration factor will be the (reading)/(known weight)
+
+void tare();
+
 void setup_loadcell();
 void loop_loadcell();
 

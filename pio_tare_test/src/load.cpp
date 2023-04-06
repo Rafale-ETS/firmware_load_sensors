@@ -5,6 +5,10 @@ HX711 scale;
 int calib_weight = 30000; //g
 float calib_param = 1.0f;
 
+extern bool tare_request;
+
+FlashStorage(calib_storage, float);
+
 unsigned long start_time = 0;
 
 void serialFlush(){
@@ -61,6 +65,7 @@ void tare() {
       delay(500);
     }
   }
+  if(tare_request) tare_request = false;
 }
 
 void setup_loadcell() {

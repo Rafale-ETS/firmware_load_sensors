@@ -41,6 +41,9 @@ void loop() {
     Serial.println(imu_container);
     send_data(imu_container, TOPIC_IMU);
 */
+    if(is_tare_requested()){
+        tare();
+    }
 
     unsigned long end_millis = millis();
     unsigned long delta_millis = LOOP_SLEEP - (end_millis - start_millis);
