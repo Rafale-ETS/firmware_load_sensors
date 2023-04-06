@@ -1,12 +1,13 @@
 // Calibrating the load cell
-#include <Arduino.h>
-#include "HX711.h"
-#include "Adafruit_BNO08x.h"
 #include "load.h"
 
 HX711 scale;
 int calib_weight = 30000; //g
 float calib_param = 1.0f;
+
+extern bool tare_request;
+
+FlashStorage(calib_storage, float);
 
 unsigned long start_time = 0;
 
@@ -48,6 +49,7 @@ void tare() {
       float reading = scale.get_units(10);
       calib_param = reading/(float)calib_weight;
       scale.set_scale(calib_param);
+      calib_storage.write(calib_param);
 
       Serial.print("Calibration done with ");
       Serial.print(calib_weight);
@@ -63,34 +65,37 @@ void tare() {
       delay(500);
     }
   }
+  if(tare_request) tare_request = false;
 }
 
 void setup_loadcell() {
-  Serial.begin(115200);
-  while (!Serial)
-    delay(10); // will pause Zero, Leonardo, etc until serial console opens
-
-  Serial.println("Test program starting!");
+  Serial.println("Load cell program starting!");
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
-  delay(100);
-  tare();
+  while(!scale.is_ready()){
+    Serial.print(".");
+    delay(1000);
+  }
+  float calib;
+  calib = calib_storage.read();
+  if(calib == 0) calib = 1;
+  Serial.print("\nset_scale("); Serial.print(calib); Serial.println(")");
+  scale.set_scale(calib);
+  //tare();
 
-  Serial.println("Ready to test. Press enter when setup to start.");
-  while(Serial.available() == 0);
-  serialFlush();
-  start_time = millis();
   Serial.println("time,val,kg,N,temp");
 }
 
 bool read_cell_no_block(LoadValue* container){
+
   if(scale.is_ready()){
 
     shift_array(container->avg_buf, AVG_BUF_LEN);
-    container->avg_buf[0] = scale.get_units(1);
+    container->avg_buf[0] = scale.get_units(5);
 
     container->raw = avg(container->avg_buf, AVG_BUF_LEN);
     container->kg = (container->raw)/calib_weight;
     container->newt = (container->kg)*kg_to_newts;
+    Serial.print("read_cell_no_block raw: "); Serial.println(container->avg_buf[0]);
     return true;
   } else {
     return false;

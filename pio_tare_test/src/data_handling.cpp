@@ -3,6 +3,8 @@
 WiFiClient wifiClient;
 MqttClient mqttClient(wifiClient);
 
+bool tare_request = false;
+
 void setup_data_handler(){
     if(WiFi.status() != WL_CONNECTED){
         Serial.print("Attempting to connect to WPA SSID: ");
@@ -13,19 +15,23 @@ void setup_data_handler(){
             delay(5000);
         }
         WiFi.lowPowerMode();
-        Serial.println("Connection success!\n");
+        Serial.println("\nConnection success!\n");
     } else {
         Serial.print("Already connected to WiFi: ");
     }
     
     Serial.print("Attempting to contact MQTT brocker at: ");
-    Serial.println(broker_ip);
-    if(!mqttClient.connect(broker_ip, port)){
+    Serial.println(BROKER_IP);
+    if(!mqttClient.connect(BROKER_IP, BROKER_PORT)){
         // failed, retry
         Serial.print(".");
         delay(5000);
     }
     Serial.println("Broker found!\n");
+
+    // set the message receive callback
+    mqttClient.onMessage(onMqttMessage);
+    mqttClient.subscribe(TOPIC_CONTROL);
 }
 
 void send_data(String data, const char* topic){
@@ -71,8 +77,6 @@ void format_data_imu(String* container,
 
     String json;
     serializeJson(doc, json);
-    Serial.print("-- ");
-    Serial.println(json);
     *container = json;
 }
 
@@ -94,8 +98,6 @@ void format_data_load(String* container,
 
     String json;
     serializeJson(doc, json);
-    Serial.print("-- ");
-    Serial.println(json);
     *container = json;
 }
 
@@ -120,4 +122,57 @@ void format_data_status(String* container,
     Serial.print("-- ");
     Serial.println(json);
     *container = json;
+
+
+void onMqttMessage(int messageSize) {
+    // we received a message, print out the topic and contents
+    Serial.print("Received a message with topic '");
+    Serial.print(mqttClient.messageTopic());
+    Serial.print("', length ");
+    Serial.print(messageSize);
+    Serial.println(" bytes:");
+
+    StaticJsonDocument<256> doc;
+    String json_data = mqttClient.readString();
+    Serial.println(json_data);
+
+    DeserializationError error = deserializeJson(doc, json_data);
+    
+    if (error) {
+        Serial.print("deserializeJson() failed: ");
+        Serial.println(error.c_str());
+        return;
+    }
+
+    //unsigned long timestamp = doc["time"]; // 1351824120
+    //const char* pkt_type = doc["type"]; // "control"
+    const char* dest_name = doc["name"]; // "default"
+
+    if(strcmp(dest_name, SENSOR_NAME) == 0){
+        JsonArray commands = doc["commands"];
+
+        int nb_commands = commands.size();
+        for(int i = 0; i < nb_commands; i++){
+            const char* command = commands[i];
+
+            if(strcmp(command, "tare") == 0) {
+                tare_request = true;
+                Serial.println("Tare requested!");
+            }else if(strcmp(command, "idle") == 0){
+                // put device in idle
+                Serial.println("Idle requested!");
+            }else if(strcmp(command, "start") == 0){
+                // put device in start
+                Serial.println("Start requested!");
+            }else if(strcmp(command, "cancel") == 0){
+                //cancel current command / return to regular mode
+                Serial.println("Cancel requested!");
+            }
+        }
+    }
+}
+
+bool is_tare_requested(){
+    mqttClient.poll();
+    return tare_request;
 }
