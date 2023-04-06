@@ -9,6 +9,7 @@
 #include "load.h"
 #include "secrets.h"
 #include "imu.h"
+#include "status.h"
 #include "generic_const.h"
 
 extern WiFiClient wifiClient;
@@ -34,7 +35,11 @@ void format_data_load(String* container,
                       unsigned long timestamp,
                       const char* sensor_name,
                       LoadValue* load_data);
-
+void format_data_status(String* container,
+                      unsigned long timestamp,
+                      const char* sensor_name,
+                      StatusValue* status_data);
+                      
 //Load cell
 void onMqttMessage(int messageSize);
 bool is_tare_requested();

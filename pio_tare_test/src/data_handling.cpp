@@ -101,6 +101,29 @@ void format_data_load(String* container,
     *container = json;
 }
 
+void format_data_status(String* container,
+                      unsigned long timestamp,
+                      const char* sensor_name,
+                      StatusValue* status_data)
+{
+    StaticJsonDocument<192> doc;
+
+    doc["time"] = timestamp;
+    doc["type"] = "status";
+    doc["name"] = String(sensor_name);
+
+    JsonObject data = doc.createNestedObject("data");
+    // TODO : Add status
+    data["battery_voltage"] = status_data->batteryVoltage;
+    data["charge_level"] = status_data->chargeLevel;
+
+    String json;
+    serializeJson(doc, json);
+    Serial.print("-- ");
+    Serial.println(json);
+    *container = json;
+
+
 void onMqttMessage(int messageSize) {
     // we received a message, print out the topic and contents
     Serial.print("Received a message with topic '");
