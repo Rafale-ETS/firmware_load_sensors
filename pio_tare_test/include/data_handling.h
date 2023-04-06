@@ -8,15 +8,16 @@
 #include <ArduinoJson.h>
 #include "secrets.h"
 #include "imu.h"
-#include "load.h"
+#include "generic_const.h"
 
 extern WiFiClient wifiClient;
 extern MqttClient mqttClient;
 
-const char broker_ip[]  = "192.168.105.1";
-const int  port         = 1883;
-const char topic_load[] = "strength";
-const char topic_imu[]  = "orientation";
+const char BROKER_IP[]  = "192.168.105.1";
+const int  BROKER_PORT  = 1883;
+const char TOPIC_LOAD[] = "strength";
+const char TOPIC_IMU[]  = "orientation";
+const char TOPIC_CONTROL[] = "control";
 
 void setup_data_handler();
 

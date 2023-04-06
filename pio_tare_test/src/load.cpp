@@ -1,7 +1,4 @@
 // Calibrating the load cell
-#include <Arduino.h>
-#include "HX711.h"
-#include "Adafruit_BNO08x.h"
 #include "load.h"
 
 HX711 scale;
@@ -84,14 +81,16 @@ void setup_loadcell() {
 }
 
 bool read_cell_no_block(LoadValue* container){
+
   if(scale.is_ready()){
 
     shift_array(container->avg_buf, AVG_BUF_LEN);
-    container->avg_buf[0] = scale.get_units(1);
+    container->avg_buf[0] = scale.get_units(5);
 
     container->raw = avg(container->avg_buf, AVG_BUF_LEN);
     container->kg = (container->raw)/calib_weight;
     container->newt = (container->kg)*kg_to_newts;
+    Serial.print("read_cell_no_block raw: "); Serial.println(container->avg_buf[0]);
     return true;
   } else {
     return false;

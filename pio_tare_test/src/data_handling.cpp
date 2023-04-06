@@ -13,14 +13,14 @@ void setup_data_handler(){
             delay(5000);
         }
         WiFi.lowPowerMode();
-        Serial.println("Connection success!\n");
+        Serial.println("\nConnection success!\n");
     } else {
         Serial.print("Already connected to WiFi: ");
     }
     
     Serial.print("Attempting to contact MQTT brocker at: ");
-    Serial.println(broker_ip);
-    if(!mqttClient.connect(broker_ip, port)){
+    Serial.println(BROKER_IP);
+    if(!mqttClient.connect(BROKER_IP, BROKER_PORT)){
         // failed, retry
         Serial.print(".");
         delay(5000);
@@ -71,8 +71,6 @@ void format_data_imu(String* container,
 
     String json;
     serializeJson(doc, json);
-    Serial.print("-- ");
-    Serial.println(json);
     *container = json;
 }
 
@@ -94,7 +92,5 @@ void format_data_load(String* container,
 
     String json;
     serializeJson(doc, json);
-    Serial.print("-- ");
-    Serial.println(json);
     *container = json;
 }
