@@ -4,6 +4,9 @@ WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 
 bool tare_request = false;
+bool tare_next = false;
+unsigned int tare_weight = 0;
+extern bool tare_in_process;
 
 void connect_WiFi(){
     if(WiFi.status() != WL_CONNECTED){
@@ -20,7 +23,7 @@ void connect_WiFi(){
         Serial.print("Already connected to WiFi: ");
     }
 }
-    
+
 void connect_broker(){
     Serial.print("Attempting to contact MQTT brocker at: ");
     Serial.println(BROKER_IP);
@@ -31,7 +34,7 @@ void connect_broker(){
         delay(1000);
     }
     Serial.println("Broker found!\n");
-
+    
     // set the message receive callback
     mqttClient.setBufferSize(512);
     mqttClient.setCallback(onMqttMessage);
@@ -131,15 +134,18 @@ void format_data_status(String* container,
     doc["name"] = String(sensor_name);
 
     JsonObject data = doc.createNestedObject("data");
-    // TODO : Add status
+    JsonArray status = data.createNestedArray("status");
+    for(unsigned int i = 0; i < status_data->nb_statuses; i++){
+        status.add(String(status_data->statuses[i]));
+    }
+    data["nb_statuses"] = status_data->nb_statuses;
     data["battery_voltage"] = status_data->batteryVoltage;
     data["charge_level"] = status_data->chargeLevel;
 
     String json;
     serializeJson(doc, json);
-    Serial.print("-- ");
-    Serial.println(json);
     *container = json;
+}
 
 void onMqttMessage(char* topic, uint8_t* payload, unsigned int length){
     // we received a message, print out the topic and contents
@@ -182,14 +188,16 @@ void onMqttMessage(char* topic, uint8_t* payload, unsigned int length){
                 // put device in start
                 Serial.println("Start requested!");
             }else if(strcmp(command, "cancel") == 0){
-                //cancel current command / return to regular mode
+                // cancel current command / return to regular mode
                 Serial.println("Cancel requested!");
+            }else if(strcmp(command, "next") == 0){
+                // go to next step (tare process)
+                if(tare_in_process){
+                    tare_next = true;
+                    tare_weight = doc["data"];
+                }
             }
         }
     }
 }
 
-bool is_tare_requested(){
-    mqttClient.poll();
-    return tare_request;
-}
