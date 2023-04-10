@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 #include <WiFiNINA.h>
-#include <ArduinoMqttClient.h>
+//#include <ArduinoMqttClient.h>
+#include <PubSubClient.h>
 #include <Adafruit_BNO08x.h>
 #include <ArduinoJson.h>
 #include "load.h"
@@ -13,13 +14,14 @@
 #include "generic_const.h"
 
 extern WiFiClient wifiClient;
-extern MqttClient mqttClient;
+extern PubSubClient mqttClient;
 
 const char BROKER_IP[]  = "192.168.105.1";
 const int  BROKER_PORT  = 1883;
 const char TOPIC_LOAD[] = "strength";
 const char TOPIC_IMU[]  = "orientation";
 const char TOPIC_CONTROL[] = "control";
+const char TOPIC_STATUS[] = "status";
 
 void setup_data_handler();
 
@@ -41,7 +43,8 @@ void format_data_status(String* container,
                       StatusValue* status_data);
                       
 //Load cell
-void onMqttMessage(int messageSize);
-bool is_tare_requested();
+void onMqttMessage(char* topic, uint8_t* payload, unsigned int length);
+
+void validate_WIFI();
 
 #endif

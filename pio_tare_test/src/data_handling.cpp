@@ -1,11 +1,11 @@
 #include "data_handling.h"
 
 WiFiClient wifiClient;
-MqttClient mqttClient(wifiClient);
+PubSubClient mqttClient(wifiClient);
 
 bool tare_request = false;
 
-void setup_data_handler(){
+void connect_WiFi(){
     if(WiFi.status() != WL_CONNECTED){
         Serial.print("Attempting to connect to WPA SSID: ");
         Serial.println(HUB_SSID);
@@ -19,25 +19,43 @@ void setup_data_handler(){
     } else {
         Serial.print("Already connected to WiFi: ");
     }
+}
     
+void connect_broker(){
     Serial.print("Attempting to contact MQTT brocker at: ");
     Serial.println(BROKER_IP);
-    if(!mqttClient.connect(BROKER_IP, BROKER_PORT)){
+    mqttClient.setServer(BROKER_IP, BROKER_PORT);
+    if(!mqttClient.connect(SENSOR_NAME)){
         // failed, retry
-        Serial.print(".");
-        delay(5000);
+        Serial.print("q");
+        delay(1000);
     }
     Serial.println("Broker found!\n");
 
     // set the message receive callback
-    mqttClient.onMessage(onMqttMessage);
+    mqttClient.setBufferSize(512);
+    mqttClient.setCallback(onMqttMessage);
     mqttClient.subscribe(TOPIC_CONTROL);
 }
 
+void setup_data_handler(){
+    connect_WiFi();
+    connect_broker();
+}
+
 void send_data(String data, const char* topic){
-    mqttClient.beginMessage(topic);
-    mqttClient.print(data);
-    mqttClient.endMessage();
+    char payload[data.length()+1];
+    data.toCharArray(payload, data.length()+1);
+
+    mqttClient.publish(topic, payload);
+}
+
+void validate_WIFI(){
+    if(WiFi.status() != WL_CONNECTED){
+        setup_data_handler();
+    } else {
+        Serial.print("Still connected to WiFi.");
+    }
 }
 
 void format_data_imu(String* container, 
@@ -123,17 +141,16 @@ void format_data_status(String* container,
     Serial.println(json);
     *container = json;
 
-
-void onMqttMessage(int messageSize) {
+void onMqttMessage(char* topic, uint8_t* payload, unsigned int length){
     // we received a message, print out the topic and contents
     Serial.print("Received a message with topic '");
-    Serial.print(mqttClient.messageTopic());
+    Serial.print(topic);
     Serial.print("', length ");
-    Serial.print(messageSize);
+    Serial.print(length);
     Serial.println(" bytes:");
 
     StaticJsonDocument<256> doc;
-    String json_data = mqttClient.readString();
+    String json_data = String((char*) payload);
     Serial.println(json_data);
 
     DeserializationError error = deserializeJson(doc, json_data);

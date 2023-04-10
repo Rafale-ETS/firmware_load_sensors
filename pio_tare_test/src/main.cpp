@@ -70,5 +70,7 @@ void loop() {
     unsigned long end_millis = millis();
     unsigned long delta_millis = LOOP_SLEEP - (end_millis - start_millis);
     //LowPower.idle(delta_millis); // sleep the full delay, minus the time it took to run the loop.
+    
+    mqttClient.loop();
     delay(delta_millis); // temp because LowPower doesn't work.
 }
