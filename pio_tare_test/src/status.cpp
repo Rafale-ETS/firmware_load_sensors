@@ -2,9 +2,6 @@
   Read battery voltage on MKR WIFI 1010 !
   This code is an adaptation of the code on the site https://docs.arduino.cc/tutorials/mkr-wifi-1010/mkr-battery-app-note
 */
-// Include the library for the BQ24195 IC
-#include <BQ24195.h>
-#include <Arduino.h>
 #include "status.h"
 
 float rawADC; // unprocessed ADC value
@@ -12,8 +9,6 @@ float voltADC; // ADC converted into voltage
 float voltBat; // calculated voltage on battery
 float chargeLevel; // charge level of the battery in %
 int max_Source_voltage; // upper source voltage for the battery
-
-unsigned long start_time = 0;
 
 void setup_status() {
   Serial.begin(9600);               // start Serial port with a baudrate of 9600bps
@@ -38,7 +33,7 @@ void setup_status() {
   max_Source_voltage = (3.3 * (R1 + R2))/R2;
 }
 
-void read_status_no_block(BatteryValue* container) {
+void read_status_no_block(StatusValue* container) {
     rawADC = analogRead(ADC_BATTERY); // the value obtained directly at the PB09 input pin
     voltADC = rawADC*(3.3/4095.0); // convert ADC value to the voltage read at the pin
     voltBat = voltADC*(max_Source_voltage/3.3); // we cannot use map since it requires int inputs/outputs
@@ -49,12 +44,10 @@ void read_status_no_block(BatteryValue* container) {
 
 // Debug function
 void loop_status() {
-    unsigned long time = millis() - start_time;
 
     StatusValue val_con;
     read_status_no_block(&val_con);
 
-    Serial.print(time);
     Serial.print("The ADC on PB09 reads a value of ");
     Serial.print(rawADC);
     Serial.print(" which is equivialent to ");

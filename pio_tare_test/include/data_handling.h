@@ -7,7 +7,7 @@
 #include <PubSubClient.h>
 #include <Adafruit_BNO08x.h>
 #include <ArduinoJson.h>
-#include "load.h"
+#include "custom_types.h"
 #include "secrets.h"
 #include "imu.h"
 #include "status.h"
