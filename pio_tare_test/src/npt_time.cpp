@@ -48,7 +48,7 @@ unsigned long get_ntp_epoch(){
 
 void setRTC() { // get the time from Internet Time Service
   unsigned long epoch;
-  int numberOfTries = 0, maxTries = 10;
+  int numberOfTries = 0, maxTries = 2;
   do {
     epoch = get_ntp_epoch();
     numberOfTries++;

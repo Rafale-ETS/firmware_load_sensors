@@ -112,9 +112,6 @@ void setup_loadcell() {
   if(calib == 0) calib = 1;
   Serial.print("\nset_scale("); Serial.print(calib); Serial.println(")");
   scale.set_scale(calib);
-  //tare();
-
-  Serial.println("time,val,kg,N,temp");
 }
 
 bool read_cell_no_block(LoadValue* container){
@@ -128,7 +125,7 @@ bool read_cell_no_block(LoadValue* container){
     if(calib_w == 0) calib_w = 1;
 
     container->raw = avg(container->avg_buf, AVG_BUF_LEN);
-    container->kg = (container->raw)/calib_w;
+    container->kg = (container->raw)/1000; //(calib_w); ?
     container->newt = (container->kg)*kg_to_newts;
     Serial.print("read_cell_no_block raw: "); Serial.println(container->avg_buf[0]);
     return true;
