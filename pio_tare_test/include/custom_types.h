@@ -19,12 +19,14 @@ typedef struct ImuDatas{
     sh2_RotationVectorWAcc_t rotation;
 } ImuData;
 
+const char STATUS_STARTING[] = "starting";
 const char STATUS_ACTIVE[] = "active";
 const char STATUS_IDLE[] = "idle";
 const char STATUS_LOW_BATT[] = "low_battery";
 const char STATUS_NO_IMU[] = "no_imu";
 const char STATUS_NO_LOADCELL[] = "no_loadcell";
 const char STATUS_NO_TIME[] = "no_time";
+const char STATUS_TARE[] = "tare";
 
 const char STATUS_TARE_WAIT_EMPTY[] = "tare_wait_empty";
 const char STATUS_TARE_WAIT_WEIGHT[] = "tare_wait_weight";
